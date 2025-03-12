@@ -1,0 +1,12 @@
+friends = LOAD 'friends.csv' USING PigStorage(',') AS (FriendRel:INT, PersonID:INT, MyFriend:INT, DateOfFriendship:CHARARRAY, Desc:CHARARRAY);
+pages = LOAD 'pages.csv' USING PigStorage(',') AS (PersonID:INT, Name:CHARARRAY, Nationality:CHARARRAY, CountryCode:INT, Hobby:CHARARRAY);
+
+
+friend_count = GROUP friends BY MyFriend;
+friend_count = FOREACH friend_count GENERATE group AS PersonID, COUNT(friends) AS FriendCount;
+
+
+all_users = JOIN pages BY PersonID LEFT OUTER, friend_count BY PersonID;
+all_users = FOREACH all_users GENERATE pages::Name, (friend_count::FriendCount IS NULL ? 0 : friend_count::FriendCount) AS ConnectednessFactor;
+
+DUMP all_users;

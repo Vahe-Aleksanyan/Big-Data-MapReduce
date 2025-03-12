@@ -1,0 +1,6 @@
+pages = LOAD 'pages.csv' USING PigStorage(',') AS (PersonID:INT, Name:CHARARRAY, Nationality:CHARARRAY, CountryCode:INT, Hobby:CHARARRAY);
+
+filtered_users = FILTER pages BY Nationality == 'Kazakhstan';
+result_a = FOREACH filtered_users GENERATE Name, Hobby;
+
+DUMP result_a;

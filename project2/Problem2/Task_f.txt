@@ -1,0 +1,23 @@
+friends = LOAD 'friends.csv' USING PigStorage(',') AS (FriendRel:int, PersonID:int, MyFriend:int, DateOfFriendship:chararray, Desc:chararray);
+
+access_logs = LOAD 'access_logs.csv' USING PigStorage(',') AS (AccessID:int, ByWho:int, WhatPage:int, TypeOfAccess:chararray, AccessTime:chararray);
+
+pages = LOAD 'pages.csv' USING PigStorage(',') AS (PersonID:int, Name:chararray, Nationality:chararray, CountryCode:int, Hobby:chararray);
+
+joined_data = JOIN friends BY (PersonID, MyFriend) LEFT OUTER, access_logs BY (ByWho, WhatPage);
+
+no_access = FILTER joined_data BY AccessTime IS NULL;
+
+unique_ids = FOREACH no_access GENERATE PersonID;
+
+final_unique_ids = DISTINCT unique_ids;
+
+result = JOIN final_unique_ids BY PersonID, pages BY PersonID;
+
+final_result = FOREACH result GENERATE pages::PersonID, pages::Name;
+
+DUMP final_result;
+
+
+
+

@@ -1,0 +1,6 @@
+pages = LOAD 'pages.csv' USING PigStorage(',') AS (PersonID:INT, Name:CHARARRAY, Nationality:CHARARRAY, CountryCode:INT, Hobby:CHARARRAY);
+
+grouped_by_country = GROUP pages BY Nationality;
+country_page_count = FOREACH grouped_by_country GENERATE group AS Nationality, COUNT(pages) AS CitizenCount;
+
+DUMP country_page_count;

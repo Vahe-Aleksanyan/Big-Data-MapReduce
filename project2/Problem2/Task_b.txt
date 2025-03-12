@@ -1,0 +1,14 @@
+access_logs = LOAD 'access_logs.csv' USING PigStorage(',') AS (AccessID:INT, ByWho:INT, WhatPage:INT, TypeOfAccess:CHARARRAY, AccessTime:CHARARRAY);
+
+pages = LOAD 'pages.csv' USING PigStorage(',') AS (PersonID:INT, Name:CHARARRAY, Nationality:CHARARRAY, CountryCode:INT, Hobby:CHARARRAY);
+
+page_access_count = GROUP access_logs BY WhatPage;
+page_access_count = FOREACH page_access_count GENERATE group AS PageID, COUNT(access_logs) AS AccessCount;
+
+top_pages = ORDER page_access_count BY AccessCount DESC;
+top_10_pages = LIMIT top_pages 10;
+
+top_pages_with_details = JOIN top_10_pages BY PageID, pages BY PersonID;
+result_b = FOREACH top_pages_with_details GENERATE top_10_pages::PageID, pages::Name, pages::Nationality;
+
+DUMP result_b;
